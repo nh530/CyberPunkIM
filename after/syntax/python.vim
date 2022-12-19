@@ -16,7 +16,7 @@ syn match pythonDecoratorName "@\s*\h\%(\w\|\.\)*"
 " () defines an atom which is a grouping of regex to create a pattern.
 " (atom)@<= is a positive lookbehind for pattern denoted by (atom).
 " (atom)@= is a postiive lookahead for pattern denoted by (atom).
-syn match pythonFString "\v(\".{-})@<=(\{.{-}\})(.{-}\")@="
+syn match pythonFString "\v([f]\".{-})@<=(\{.{-}\})(.{-}\")@="
 syn clear pythonString
 syn cluster pyString contains=pythonEscape,@Spell,pythonFString
 " redefining pythonString syntax group to include F Strings.
