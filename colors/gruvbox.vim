@@ -1,9 +1,9 @@
 " -----------------------------------------------------------------------------
 " File: gruvbox.vim
-" Description: Retro groove color scheme for Vim
-" Author: morhetz <morhetz@gmail.com>
-" Source: https://github.com/morhetz/gruvbox
-" Last Modified: 12 Aug 2017
+" Description: Retro groove color scheme for Vim Improved. Modified from Pavel
+" Pertsev.
+" Author: Norman Hong
+" Last Modified: November 26, 2022
 " -----------------------------------------------------------------------------
 
 " Supporting code -------------------------------------------------------------
@@ -12,6 +12,9 @@
 if version > 580
   hi clear
   if exists("syntax_on")
+    " It looks like syntax_on variable will be 1 if syntax on or syntax enabled is used.
+    " changes the colors back to the defaults as if custom colorscheme is not
+    " set.
     syntax reset
   endif
 endif
@@ -19,11 +22,16 @@ endif
 let g:colors_name='gruvbox'
 
 if !(has('termguicolors') && &termguicolors) && !has('gui_running') && &t_Co != 256
+  " checking if termguicolors and gui_running is not supported by the version of vim that is running.
+  " the has function differs from the exists function because exists can check for other things like variables or options.
   finish
 endif
 
 " }}}
 " Global Settings: {{{
+" Checking if certain global variables are created using exists function. If the
+" global variable has been defined, then exists return 1. Otherwise, it returns
+" 0. It does not matter what the variable has been defined to.
 
 if !exists('g:gruvbox_bold')
   let g:gruvbox_bold=1
@@ -77,7 +85,13 @@ if !exists('g:gruvbox_contrast_light')
   let g:gruvbox_contrast_light='medium'
 endif
 
-let s:is_dark=(&background == 'dark')
+" The following is shorthand for
+" if &background ==# 'dark'
+"   let s:is_dark=1
+" else
+"   let s:is_dark=0
+" endif
+let s:is_dark=(&background ==# 'dark')
 
 " }}}
 " Palette: {{{
@@ -85,7 +99,9 @@ let s:is_dark=(&background == 'dark')
 " setup palette dictionary
 let s:gb = {}
 
-" fill it with absolute colors
+" fill it with absolute colors - xterm number, hex, RGB denominations.
+" [gui, cterm] = [hex, xterm number]
+" note that the xterm color does not corresond to the hex and RGB version that is used.
 let s:gb.dark0_hard  = ['#1d2021', 234]     " 29-32-33
 let s:gb.dark0       = ['#282828', 235]     " 40-40-40
 let s:gb.dark0_soft  = ['#32302f', 236]     " 50-48-47
@@ -134,6 +150,7 @@ let s:gb.faded_orange   = ['#af3a03', 130]     " 175-58-3
 " }}}
 " Setup Emphasis: {{{
 
+" This is like a shortened if, then, else, this syntax.
 let s:bold = 'bold,'
 if g:gruvbox_bold == 0
   let s:bold = ''
@@ -166,6 +183,23 @@ let s:vim_bg = ['bg', 'bg']
 let s:vim_fg = ['fg', 'fg']
 let s:none = ['NONE', 'NONE']
 
+
+let s:faded_red = s:gb.faded_red
+let s:faded_green = s:gb.faded_green
+let s:faded_yellow = s:gb.faded_yellow   
+let s:faded_blue = s:gb.faded_blue     
+let s:faded_purple = s:gb.faded_purple   
+let s:faded_aqua = s:gb.faded_aqua     
+let s:faded_orange = s:gb.faded_orange   
+
+let s:neutral_red = s:gb.neutral_red    
+let s:neutral_green = s:gb.neutral_green  
+let s:neutral_yellow = s:gb.neutral_yellow
+let s:neutral_blue = s:gb.neutral_blue   
+let s:neutral_purple = s:gb.neutral_purple 
+let s:neutral_aqua = s:gb.neutral_aqua   
+let s:neutral_orange = s:gb.neutral_orange 
+
 " determine relative colors
 if s:is_dark
   let s:bg0  = s:gb.dark0
@@ -175,6 +209,8 @@ if s:is_dark
     let s:bg0  = s:gb.dark0_hard
   endif
 
+  let s:bg0_soft = s:gb.dark0_soft
+  let s:bg0_hard = s:gb.dark0_hard
   let s:bg1  = s:gb.dark1
   let s:bg2  = s:gb.dark2
   let s:bg3  = s:gb.dark3
@@ -197,6 +233,7 @@ if s:is_dark
   let s:purple = s:gb.bright_purple
   let s:aqua   = s:gb.bright_aqua
   let s:orange = s:gb.bright_orange
+
 else
   let s:bg0  = s:gb.light0
   if g:gruvbox_contrast_light == 'soft'
@@ -227,9 +264,10 @@ else
   let s:purple = s:gb.faded_purple
   let s:aqua   = s:gb.faded_aqua
   let s:orange = s:gb.faded_orange
+
 endif
 
-" reset to 16 colors fallback
+" reset to 16 colors fallback. Most terminals are set to 256 not 16.
 if g:gruvbox_termcolors == 16
   let s:bg0[1]    = 0
   let s:fg4[1]    = 7
@@ -260,6 +298,7 @@ let s:gb.fg4 = s:fg4
 
 let s:gb.fg4_256 = s:fg4_256
 
+" TODO: Why is the word red highlighted.
 let s:gb.red    = s:red
 let s:gb.green  = s:green
 let s:gb.yellow = s:yellow
@@ -302,6 +341,9 @@ endif
 
 let s:hls_cursor = s:orange
 if exists('g:gruvbox_hls_cursor')
+    " In this case, get is a function to retrieve the key from the dictionary
+    " and if it does not exist, return default value. In the example below,
+    " there is no default value specified, which means that 0 is default value.
   let s:hls_cursor = get(s:gb, g:gruvbox_hls_cursor)
 endif
 
@@ -311,9 +353,9 @@ if exists('g:gruvbox_number_column')
 endif
 
 let s:sign_column = s:bg1
-
 if exists('g:gitgutter_override_sign_column_highlight') &&
       \ g:gitgutter_override_sign_column_highlight == 1
+    " having exists function as the first condition prevents the 2nd condition from returning variable does not exist error.
   let s:sign_column = s:number_column
 else
   let g:gitgutter_override_sign_column_highlight = 0
@@ -323,7 +365,7 @@ else
   endif
 endif
 
-let s:color_column = s:bg1
+let s:color_column = s:bg0_soft
 if exists('g:gruvbox_color_column')
   let s:color_column = get(s:gb, g:gruvbox_color_column)
 endif
@@ -372,26 +414,36 @@ endif
 " Highlighting Function: {{{
 
 function! s:HL(group, fg, ...)
-  " Arguments: group, guifg, guibg, gui, guisp
+  " The purpose of this function is to ... TBD
+  " Arguments: highlight-group, fg, bg, gui and cterm extra args, guisp
+  " group: Specifies the highlight-group name. Can be a custom group or default group.
+  " guisp: A list object to specify the highlight-guisp highlight arguments.
+  " fg: A list object to specify the highlight-guifg and highlight-ctermfg 
+  " arguments. This determines the foreground color.
+  " bg: Optional argument with default value set to ['None', 'None']. This is
+  " used to set the background color for highlight-guibg and highlight-guifg.
+  " gui: Optional argument with a default value of 'None,'
 
   " foreground
   let fg = a:fg
 
-  " background
+  " background (guibg)
   if a:0 >= 1
+    " True if there are 1 or more extra Vargars passed to function. 
     let bg = a:1
   else
+      " defaults to ['NONE', 'NONE']
     let bg = s:none
   endif
 
-  " emphasis
+  " emphasis (gui/cterm)
   if a:0 >= 2 && strlen(a:2)
     let emstr = a:2
   else
     let emstr = 'NONE,'
   endif
 
-  " special fallback
+  " special fallback (guisp) 
   if a:0 >= 3
     if g:gruvbox_guisp_fallback != 'NONE'
       let fg = a:3
@@ -403,14 +455,16 @@ function! s:HL(group, fg, ...)
     endif
   endif
 
+  " 'NONE,'[:-2] = 'NONE' --> why not just do 'NONE'[:-1]
   let histring = [ 'hi', a:group,
         \ 'guifg=' . fg[0], 'ctermfg=' . fg[1],
         \ 'guibg=' . bg[0], 'ctermbg=' . bg[1],
         \ 'gui=' . emstr[:-2], 'cterm=' . emstr[:-2]
         \ ]
 
-  " special
+  " special (guisp)
   if a:0 >= 3
+    " Adding guisp into the histring list if it is passed into function.
     call add(histring, 'guisp=' . a:3[0])
   endif
 
@@ -419,7 +473,7 @@ endfunction
 
 " }}}
 " Gruvbox Hi Groups: {{{
-
+" Creating common highlight groups.
 " memoize common hi groups
 call s:HL('GruvboxFg0', s:fg0)
 call s:HL('GruvboxFg1', s:fg1)
@@ -435,19 +489,40 @@ call s:HL('GruvboxBg4', s:bg4)
 
 call s:HL('GruvboxRed', s:red)
 call s:HL('GruvboxRedBold', s:red, s:none, s:bold)
+call s:HL('GruvboxRedFaded', s:faded_red, s:none)
+call s:HL('GruvboxRedNeutral', s:neutral_red, s:none)
+
 call s:HL('GruvboxGreen', s:green)
 call s:HL('GruvboxGreenBold', s:green, s:none, s:bold)
+call s:HL('GruvboxGreenFaded', s:faded_green)
+call s:HL('GruvboxGreenNeutral', s:neutral_green)
+
 call s:HL('GruvboxYellow', s:yellow)
 call s:HL('GruvboxYellowBold', s:yellow, s:none, s:bold)
+call s:HL('GruvboxYellowFaded', s:faded_yellow)
+call s:HL('GruvboxYellowNeutral', s:neutral_yellow)
+
 call s:HL('GruvboxBlue', s:blue)
 call s:HL('GruvboxBlueBold', s:blue, s:none, s:bold)
+call s:HL('GruvboxBlueFaded', s:faded_blue)
+call s:HL('GruvboxBlueNeutral', s:neutral_blue)
+
 call s:HL('GruvboxPurple', s:purple)
 call s:HL('GruvboxPurpleBold', s:purple, s:none, s:bold)
+call s:HL('GruvboxPurpleFaded', s:faded_purple)
+call s:HL('GruvboxPurpleNeutral', s:neutral_purple)
+
 call s:HL('GruvboxAqua', s:aqua)
 call s:HL('GruvboxAquaBold', s:aqua, s:none, s:bold)
+call s:HL('GruvboxAquaFaded', s:faded_aqua)
+call s:HL('GruvboxAquaNeutral', s:neutral_aqua)
+
 call s:HL('GruvboxOrange', s:orange)
 call s:HL('GruvboxOrangeBold', s:orange, s:none, s:bold)
+call s:HL('GruvboxOrangeFaded', s:faded_orange)
+call s:HL('GruvboxOrangeNeutral', s:neutral_orange)
 
+" Sign column color a background and invert_signs as GUI.
 call s:HL('GruvboxRedSign', s:red, s:sign_column, s:invert_signs)
 call s:HL('GruvboxGreenSign', s:green, s:sign_column, s:invert_signs)
 call s:HL('GruvboxYellowSign', s:yellow, s:sign_column, s:invert_signs)
@@ -458,7 +533,7 @@ call s:HL('GruvboxOrangeSign', s:orange, s:sign_column, s:invert_signs)
 
 " }}}
 
-" Vanilla colorscheme ---------------------------------------------------------
+" Vanilla gruvbox colorscheme ---------------------------------------------------------
 " General UI: {{{
 
 " Normal text
@@ -467,19 +542,25 @@ call s:HL('Normal', s:fg1, s:bg0)
 " Correct background (see issue #7):
 " --- Problem with changing between dark and light on 256 color terminal
 " --- https://github.com/morhetz/gruvbox/issues/7
+" I think this allow toggling between dark mode and light mode.
 if s:is_dark
   set background=dark
 else
   set background=light
 endif
 
+" checking version of vim.
 if version >= 700
-  " Screen line that the cursor is
-  call s:HL('CursorLine',   s:none, s:bg1)
-  " Screen column that the cursor is
+  " Screen line that the cursor is in. This controls the color of the line that the cursor is in.
+  call s:HL('CursorLine', s:none, s:bg0_soft)
+  " Screen column that the cursor is in. This controls the color of the column.
+  " Linking the color of the Cursor Column to the Cursor Line so that they are the same.
   hi! link CursorColumn CursorLine
 
   " Tab pages line filler
+  " s:invert_tabline = 'inverse,' --> This will switch foreground and background
+  " colors. inverse has the same effect as reverse.
+  " Using inverse or reverse will give the highlight group being reversed or inverted a higher priority over other highlight groups.
   call s:HL('TabLineFill', s:bg4, s:bg1, s:invert_tabline)
   " Active tab page label
   call s:HL('TabLineSel', s:green, s:bg1, s:invert_tabline)
@@ -487,24 +568,39 @@ if version >= 700
   hi! link TabLine TabLineFill
 
   " Match paired bracket under the cursor
-  call s:HL('MatchParen', s:none, s:bg3, s:bold)
+  " If there are paired brackets, empty or text in-between, this will make
+  " brackets bold and changes background color behind the brackets if the cursor is on the right-most bracket or to 
+  " the right of the right-most bracket.
+  call s:HL('MatchParen', s:none, s:bg4, s:bold)
 endif
 
 if version >= 703
-  " Highlighted screen columns
-  call s:HL('ColorColumn',  s:none, s:color_column)
+  " Highlighted screen columns set to colorcolumns.
+  " i.e. set colorcolumn=120 will set the 120th column to the highlight format
+  " set by ColorColumn highlight group.
+  call s:HL('ColorColumn', s:none, s:color_column)
 
   " Concealed element: \lambda → λ
   call s:HL('Conceal', s:blue, s:none)
 
   " Line number of CursorLine
-  call s:HL('CursorLineNr', s:yellow, s:bg1)
+  call s:HL('CursorLineNr', s:yellow, s:bg1, s:bold)
 endif
 
-hi! link NonText GruvboxBg2
-hi! link SpecialKey GruvboxBg2
+" NonText is the text that is usually not part of the file. In abstract terms,
+" this could be anything used to denote something that is not apart of the
+" actual file. For instance, the ~ text marker at the end of a file when the
+" file does not fill the screen.
+hi! link NonText GruvboxBg4
+" SpecialKey highlight group specifies the highlight to use for text is
+" specified by listchars and other meta and special keys. For instance, when set
+" list is used, this will show typically unprintable characters like tabs and
+" white spaces.
+hi! link SpecialKey GruvboxBg3
 
-call s:HL('Visual',    s:none,  s:bg3, s:invert_selection)
+" The fg color is not set, so the visual selected text assumes the value it is currently set to. Therefore, doing an inverse will cause
+" the current fg value of the text and the bg of the Visual highlight group to flip.
+call s:HL('Visual', s:none, s:bg3, s:invert_selection)
 hi! link VisualNOS Visual
 
 call s:HL('Search',    s:yellow, s:bg0, s:inverse)
@@ -527,8 +623,8 @@ hi! link Directory GruvboxGreenBold
 " Titles for output from :set all, :autocmd, etc.
 hi! link Title GruvboxGreenBold
 
-" Error messages on the command line
-call s:HL('ErrorMsg',   s:bg0, s:red, s:bold)
+" Error messages on the vim command line. (This is the bar all the way at the bottom of vim.)
+call s:HL('ErrorMsg', s:bg0, s:red, s:bold)
 " More prompt: -- More --
 hi! link MoreMsg GruvboxYellowBold
 " Current mode message: -- INSERT --
@@ -538,17 +634,21 @@ hi! link Question GruvboxOrangeBold
 " Warning messages
 hi! link WarningMsg GruvboxRedBold
 
+" Python F string highlighting
+hi! link pythonFString GruvboxYellowBold
+"call s:HL('PythonFString', GruvboxYellowBold)
+
 " }}}
 " Gutter: {{{
 
-" Line number for :number and :# commands
-call s:HL('LineNr', s:bg4, s:number_column)
+" Line number for :number and :# commands; Controls the color for the line number.
+call s:HL('LineNr', s:gb.neutral_aqua, s:number_column)
 
 " Column where signs are displayed
 call s:HL('SignColumn', s:none, s:sign_column)
 
 " Line used for closed folds
-call s:HL('Folded', s:gray, s:bg1, s:italic)
+call s:HL('Folded', s:gray, s:bg1, s:bold)
 " Column where folds are displayed
 call s:HL('FoldColumn', s:gray, s:bg1)
 
@@ -556,10 +656,11 @@ call s:HL('FoldColumn', s:gray, s:bg1)
 " Cursor: {{{
 
 " Character under cursor
-call s:HL('Cursor', s:none, s:none, s:inverse)
+" Doesn't seem to affect anything on macos terminal.
+call s:HL('Cursor', s:blue, s:none, s:inverse)
 " Visual mode cursor, selection
 hi! link vCursor Cursor
-" Input moder cursor
+" Input mode cursor
 hi! link iCursor Cursor
 " Language mapping cursor
 hi! link lCursor Cursor
@@ -574,7 +675,7 @@ else
 endif
 
 call s:HL('Comment', s:gray, s:none, s:italicize_comments)
-call s:HL('Todo', s:vim_fg, s:vim_bg, s:bold . s:italic)
+call s:HL('Todo', s:vim_fg, s:vim_bg, s:bold . s:underline)
 call s:HL('Error', s:red, s:vim_bg, s:bold . s:inverse)
 
 " Generic statement
@@ -616,7 +717,7 @@ hi! link Character GruvboxPurple
 if g:gruvbox_improved_strings == 0
   call s:HL('String',  s:green, s:none, s:italicize_strings)
 else
-  call s:HL('String',  s:fg1, s:bg1, s:italicize_strings)
+  call s:HL('String',  s:green, s:bg1, s:italicize_strings)
 endif
 " Boolean constant: TRUE, false
 hi! link Boolean GruvboxPurple
@@ -1029,23 +1130,50 @@ hi! link cStructure GruvboxOrange
 " }}}
 " Python: {{{
 
+"pythonConditional =  elif else if
+"pythonRepeat = for while
+"pythonStatement = False None True
+"pythonStatement = as assert break continue del global
+"pythonStatement = lambda nonlocal pass return with yield
+"pythonStatement = class def nextgroup=pythonFunction skipwhite
+"pythonConditional = elif else if
+"pythonRepeat = for while
+"pythonOperator = and in is not or
+"pythonException = except finally raise try
+"pythonInclude = from import
+"pythonAsync = async await
+"pythonBuiltin = NotImplemented Ellipsis __debug__
+"pythonBuiltin = quit exit copyright credits license
+"pythonBuiltin = abs all any ascii bin bool breakpoint bytearray
+"pythonBuiltin = bytes callable chr classmethod compile complex
+"pythonBuiltin = delattr dict dir divmod enumerate eval exec
+"pythonBuiltin = filter float format frozenset getattr globals
+"pythonBuiltin = hasattr hash help hex id input int isinstance
+"pythonBuiltin = issubclass iter len list locals map max
+"pythonBuiltin = memoryview min next object oct open ord pow
+"pythonBuiltin = print property range repr reversed round set
+"pythonBuiltin = setattr slice sorted staticmethod str sum super
+"pythonBuiltin = tuple type vars zip __import__
 hi! link pythonBuiltin GruvboxOrange
 hi! link pythonBuiltinObj GruvboxOrange
 hi! link pythonBuiltinFunc GruvboxOrange
 hi! link pythonFunction GruvboxAqua
-hi! link pythonDecorator GruvboxRed
-hi! link pythonInclude GruvboxBlue
-hi! link pythonImport GruvboxBlue
+hi! link pythonFunctionParameterTyping GruvboxOrange
+hi! link pythonDecorator GruvboxYellowBold
+hi! link pythonDecoratorName GruvboxYellow
+hi! link pythonInclude GruvboxBlueFaded
+hi! link pythonImport GruvboxBlueFaded
 hi! link pythonRun GruvboxBlue
 hi! link pythonCoding GruvboxBlue
 hi! link pythonOperator GruvboxRed
 hi! link pythonException GruvboxRed
 hi! link pythonExceptions GruvboxPurple
-hi! link pythonBoolean GruvboxPurple
+hi! link pythonBoolean GruvboxAquaFaded
 hi! link pythonDot GruvboxFg3
-hi! link pythonConditional GruvboxRed
+hi! link pythonConditional GruvboxRed 
 hi! link pythonRepeat GruvboxRed
 hi! link pythonDottedName GruvboxGreenBold
+hi! link pythonTODO GruvBoxRedFaded
 
 " }}}
 " CSS: {{{
